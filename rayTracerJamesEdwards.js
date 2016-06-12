@@ -296,6 +296,7 @@ window.onload = function init() {
     specularProduct = mult(lightSpecular, materialSpecular);
     
     colorCube();
+    alert(pointsArray[0]);
 
     //tetrahedron(va, vb, vc, vd, numTimesToSubdivide);
 

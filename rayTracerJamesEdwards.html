@@ -64,10 +64,28 @@ precision mediump float;
 varying vec4 fColor;
 varying vec2 fTexCoord;
 uniform sampler2D texMap;
+//uniform int rays;
+
+
+//rx = vec3(1,1,-10); //ray velocity
+//rv = vec3(1,1,1); //ray velocity
+
+void drawRays() {
+
+    //rays=4;
+    //for(i=0;i<rays;i++) {
+    //}
+
+
+}
+
 
 void
 main()
 {
+
+
+
 
     //gl_FragColor = fColor;
     gl_FragColor = fColor * texture2D(texMap, fTexCoord);
