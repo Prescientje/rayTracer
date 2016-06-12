@@ -3,63 +3,43 @@
 var canvas;
 var gl;
 
-var numVertices  = 36;
-
 var pointsArray = [];
 var colorsArray = [];
 var texCoordsArray = [];
 
 var vertices = [
-        vec4( -1, -1,  0, 1.0 ),
-        vec4( -1,  0,  0, 1.0 ),
+        vec4( -3, -3,  0, 1.0 ),
+        vec4( -3,  0,  0, 1.0 ),
         vec4( 0,  0,  0, 1.0 ),
-        vec4( 0, -1,  0, 1.0 ),
-        vec4( -1, -1, -1, 1.0 ),
-        vec4( -1,  0, -1, 1.0 ),
-        vec4( 0,  0, -1, 1.0 ),
-        vec4( 0, -1, -1, 1.0 ),
-
-        //vec4( 0,  0,  1, 1.0 ),
-        //vec4( 0,  1,  1, 1.0 ),
-        //vec4( 1,  1,  1, 1.0 ),
-        //vec4( 1,  0,  1, 1.0 ),
-        //vec4( 0,  0,  0, 1.0 ),
-        //vec4( 0,  1,  0, 1.0 ),
-        //vec4( 1,  1,  0, 1.0 ),
-        //vec4( 1,  0,  0, 1.0 )
-	
-        vec4( 0,  0,  1, 1.0 ),
-        vec4( 0,  0,  0, 1.0 ),
-        vec4( 1,  0,  0, 1.0 ),
-        vec4( 1,  0,  1, 1.0 ),
-        vec4( 0.5,  0.8,  0.5, 1.0 ),
-        //vec4( 1,  1,  1, 1.0 ),
-        //vec4( 1,  1,  1, 1.0 ),
-        //vec4( 1,  1,  1, 1.0 ),
+        vec4( 0, -3,  0, 1.0 ),
+        vec4( -3, -3, -3, 1.0 ),
+        vec4( -3,  0, -3, 1.0 ),
+        vec4( 0,  0, -3, 1.0 ),
+        vec4( 0, -3, -3, 1.0 ),
     ];
 
 var vertexColors = [
-        vec4( 0.0, 0.0, 1.0, 1.0 ),  // black
-        vec4( 0.0, 0.0, 1.0, 1.0 ),  // red
-        vec4( 0.0, 0.0, 1.0, 1.0 ),  // yellow
-        vec4( 0.0, 0.0, 1.0, 1.0 ),  // green
-        vec4( 0.0, 0.0, 1.0, 1.0 ),  // blue
-        vec4( 0.0, 0.0, 1.0, 1.0 ),  // magenta
-        vec4( 0.0, 0.0, 1.0, 1.0 ),  // cyan
-        vec4( 0.0, 0.0, 1.0, 1.0 ), // white
+        vec4( 0.0, 0.0, 0.0, 1.0 ),  // black
+        vec4( 0.0, 0.0, 0.0, 1.0 ),  // red
+        vec4( 0.0, 0.0, 0.0, 1.0 ),  // yellow
+        vec4( 0.0, 0.0, 0.0, 1.0 ),  // green
+        vec4( 0.0, 0.0, 0.0, 1.0 ),  // blue
+        vec4( 0.0, 0.0, 0.0, 1.0 ),  // magenta
+        vec4( 0.0, 0.0, 0.0, 1.0 ),  // cyan
+        vec4( 0.0, 0.0, 0.0, 1.0 )   // white
     ];
 
-var near = -3;
-var far = 3;
+var near = -7;
+var far = 7;
 var radius = 1.0;
 var theta  = 1.0;
 var phi    = 1.0;
 var dr = 5.0 * Math.PI/180.0;
 
-var left = -2.0;
-var right = 2.0;
-var ytop = 2.0;
-var bottom = -2.0;
+var left = -5.0;
+var right = 5.0;
+var ytop = 5.0;
+var bottom = -5.0;
 
 var modelViewMatrix, projectionMatrix;
 var modelViewMatrixLoc, projectionMatrixLoc;
@@ -104,6 +84,32 @@ function colorCube()
     quad( 5, 4, 0, 1 );
 }
 
+function traceRays() {
+
+    var rs = vec3(-2,1,0);
+    var rv = vec3(0.3, 0.3, 0.0);
+    var rc = 5;
+
+    for (var i=0; i<rc; i++) {
+	rs_new = add(rs, mult(rs,rv));
+	pointsArray.push(vec4(rs,1.0));
+	pointsArray.push(vec4(rs_new,1.0));
+	colorsArray.push(vec4(0,0,0,1));
+	colorsArray.push(vec4(0,0,0,1));
+	rv[1] = -1 * rv[1];
+        rs = rs_new;
+    }
+
+
+
+
+
+
+
+
+
+}
+
 
 window.onload = function init() {
     canvas = document.getElementById( "gl-canvas" );
@@ -124,6 +130,7 @@ window.onload = function init() {
     gl.useProgram( program );
     
     colorCube();
+    traceRays();
 
     var cBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
@@ -144,16 +151,15 @@ window.onload = function init() {
     modelViewMatrixLoc = gl.getUniformLocation( program, "modelViewMatrix" );
     projectionMatrixLoc = gl.getUniformLocation( program, "projectionMatrix" );
 
-// buttons to change viewing parameters
-
-    document.getElementById("Button1").onclick = function(){near  *= 1.1; far *= 1.1;};
-    document.getElementById("Button2").onclick = function(){near *= 0.9; far *= 0.9;};
-    document.getElementById("Button3").onclick = function(){radius *= 1.1;};
-    document.getElementById("Button4").onclick = function(){radius *= 0.9;};
-    document.getElementById("Button5").onclick = function(){theta += dr;};
-    document.getElementById("Button6").onclick = function(){theta -= dr;};
-    document.getElementById("Button7").onclick = function(){phi += dr;};
-    document.getElementById("Button8").onclick = function(){phi -= dr;};
+    // buttons to change viewing parameters
+    //document.getElementById("Button1").onclick = function(){near  *= 1.1; far *= 1.1;};
+    //document.getElementById("Button2").onclick = function(){near *= 0.9; far *= 0.9;};
+    //document.getElementById("Button3").onclick = function(){radius *= 1.1;};
+    //document.getElementById("Button4").onclick = function(){radius *= 0.9;};
+    //document.getElementById("Button5").onclick = function(){theta += dr;};
+    //document.getElementById("Button6").onclick = function(){theta -= dr;};
+    //document.getElementById("Button7").onclick = function(){phi += dr;};
+    //document.getElementById("Button8").onclick = function(){phi -= dr;};
        
     render();
 }
@@ -171,6 +177,6 @@ var render = function() {
     gl.uniformMatrix4fv( modelViewMatrixLoc, false, flatten(modelViewMatrix) );
     gl.uniformMatrix4fv( projectionMatrixLoc, false, flatten(projectionMatrix) );
             
-    gl.drawArrays( gl.LINES, 0, numVertices );
+    gl.drawArrays( gl.LINES, 0, pointsArray.length );
     requestAnimFrame(render);
     }
