@@ -54,20 +54,20 @@ function quad(a, b, c, d) {
      pointsArray.push(vertices[a]); 
      colorsArray.push(vertexColors[a]); 
      pointsArray.push(vertices[b]); 
-     colorsArray.push(vertexColors[a]); 
+     colorsArray.push(vertexColors[b]); 
 	 
      pointsArray.push(vertices[b]); 
-     colorsArray.push(vertexColors[a]); 
+     colorsArray.push(vertexColors[b]); 
      pointsArray.push(vertices[c]); 
-     colorsArray.push(vertexColors[a]);    
+     colorsArray.push(vertexColors[c]);    
 	 
      pointsArray.push(vertices[c]); 
-     colorsArray.push(vertexColors[a]); 
+     colorsArray.push(vertexColors[c]); 
      pointsArray.push(vertices[d]); 
-     colorsArray.push(vertexColors[a]); 
+     colorsArray.push(vertexColors[d]); 
 
      pointsArray.push(vertices[d]); 
-     colorsArray.push(vertexColors[a]); 
+     colorsArray.push(vertexColors[d]); 
      pointsArray.push(vertices[a]); 
      colorsArray.push(vertexColors[a]); 
 }
@@ -84,21 +84,54 @@ function colorCube()
     quad( 5, 4, 0, 1 );
 }
 
+function findPlaneEq(p1, p2, p3, rs, rv) {
+    
+    //alert(p1);
+    //alert(p2);
+    var diff1 = subtract(p1,p2);
+    var diff2 = subtract(p1,p3);
+    var norm = vec4(cross(diff1, diff2),1);
+    //alert(diff2);
+    //alert(norm);
+    //alert(subtract(p1,rs));
+    var t = dot(negate(norm),subtract(p1,rs))/dot(norm,rv);
+    alert(t);
+    if (t < 1) { 
+	return true;
+    } else {
+	return false;
+    }
+}
+
 function traceRays() {
 
-    var rs = vec3(-2,1,0);
-    var rv = vec3(0.3, 0.3, 0.0);
-    var rc = 5;
+    var rs_new;
+    var rs = vec4(-3.0, 0.0,-1.0, 1.0); //ray position
+    var rv = vec4( 1.0,-0.2, 0.0, 0.0); //ray velocity
+    var rc = 5; //ray "segment count"
+    var step = 25;
+    var hasIntersected = false;
 
-    for (var i=0; i<rc; i++) {
-	rs_new = add(rs, mult(rs,rv));
-	pointsArray.push(vec4(rs,1.0));
-	pointsArray.push(vec4(rs_new,1.0));
-	colorsArray.push(vec4(0,0,0,1));
-	colorsArray.push(vec4(0,0,0,1));
-	rv[1] = -1 * rv[1];
+    
+    for (var i=0; i<step; i++) {
+	rs_new = add(rs, scale(rc/step,rv));
+	pointsArray.push(rs);
+	//alert(rs);
+	//alert(rs_new);
+	pointsArray.push(rs_new);
+	if (hasIntersected) {
+	    colorsArray.push(vec4(0,0,0,1));
+	    colorsArray.push(vec4(0,0,0,1));
+	} else {
+	    colorsArray.push(vec4(1,0,0,1));
+	    colorsArray.push(vec4(1,0,0,1));
+	}
+	//rv[1] = -1 * rv[1];
         rs = rs_new;
+        hasIntersected = findPlaneEq(vertices[2],vertices[3],vertices[6],rs,rv);
     }
+    
+
 
 
 
