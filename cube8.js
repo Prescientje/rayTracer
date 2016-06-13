@@ -5,7 +5,10 @@ var gl;
 
 var pointsArray = [];
 var colorsArray = [];
-var texCoordsArray = [];
+
+var normalsArray = [];
+var normPointArray = [];
+var MinMaxXYArray = [];
 
 var vertices = [
         vec4( -3, -3,  0, 1.0 ),
@@ -84,10 +87,10 @@ function findIntersectionTime(p1, p2, p3, rs, rv) {
     return t;
 }
 
-function traceRays() {
+function traceRays(rs) {
 
     var rs_new;
-    var rs = vec4(-3.0,-3.0,-1.0, 1.0); //ray position
+    //var rs = vec4(-3.0,-3.0,-1.0, 1.0); //ray position
     var rv = vec4( 1.0, 0.2, 0.0, 0.0); //ray velocity
     var rc = 5; //ray "segment count"
     var step = 25;
@@ -147,7 +150,10 @@ window.onload = function init() {
     gl.useProgram( program );
     
     colorCube();
-    traceRays();
+    computeNormalsAndSuch();
+    traceRays(vec4(-3.0,-3.0,-1.0, 1.0));
+    traceRays(vec4(-3.0,-2.0,-2.0, 1.0));
+    traceRays(vec4(-3.0, 0.0,-1.0, 1.0));
 
     var cBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
