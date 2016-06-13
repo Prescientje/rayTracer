@@ -18,23 +18,13 @@ var vertices = [
         vec4( 0, -3, -3, 1.0 ),
     ];
 
-var vertexColors = [
-        vec4( 0.0, 0.0, 0.0, 1.0 ),  // black
-        vec4( 0.0, 0.0, 0.0, 1.0 ),  // red
-        vec4( 0.0, 0.0, 0.0, 1.0 ),  // yellow
-        vec4( 0.0, 0.0, 0.0, 1.0 ),  // green
-        vec4( 0.0, 0.0, 0.0, 1.0 ),  // blue
-        vec4( 0.0, 0.0, 0.0, 1.0 ),  // magenta
-        vec4( 0.0, 0.0, 0.0, 1.0 ),  // cyan
-        vec4( 0.0, 0.0, 0.0, 1.0 )   // white
-    ];
 
 var near = -7;
 var far = 7;
 var radius = 1.0;
 var theta  = 1.0;
 var phi    = 1.0;
-var dr = 5.0 * Math.PI/180.0;
+var dr = 30.0 * Math.PI/180.0;
 
 var left = -5.0;
 var right = 5.0;
@@ -52,24 +42,24 @@ const up = vec3(0.0, 1.0, 0.0);
 
 function quad(a, b, c, d) {
      pointsArray.push(vertices[a]); 
-     colorsArray.push(vertexColors[a]); 
+     colorsArray.push(vec4( 0.0, 0.0, 0.0, 1.0 ));   // black
      pointsArray.push(vertices[b]); 
-     colorsArray.push(vertexColors[b]); 
+     colorsArray.push(vec4( 0.0, 0.0, 0.0, 1.0 ));   // black
 	 
      pointsArray.push(vertices[b]); 
-     colorsArray.push(vertexColors[b]); 
+     colorsArray.push(vec4( 0.0, 0.0, 0.0, 1.0 ));   // black
      pointsArray.push(vertices[c]); 
-     colorsArray.push(vertexColors[c]);    
+     colorsArray.push(vec4( 0.0, 0.0, 0.0, 1.0 ));   // black
 	 
      pointsArray.push(vertices[c]); 
-     colorsArray.push(vertexColors[c]); 
+     colorsArray.push(vec4( 0.0, 0.0, 0.0, 1.0 ));   // black
      pointsArray.push(vertices[d]); 
-     colorsArray.push(vertexColors[d]); 
+     colorsArray.push(vec4( 0.0, 0.0, 0.0, 1.0 ));   // black
 
      pointsArray.push(vertices[d]); 
-     colorsArray.push(vertexColors[d]); 
+     colorsArray.push(vec4( 0.0, 0.0, 0.0, 1.0 ));   // black
      pointsArray.push(vertices[a]); 
-     colorsArray.push(vertexColors[a]); 
+     colorsArray.push(vec4( 0.0, 0.0, 0.0, 1.0 ));   // black
 }
 
 // Each face determines two triangles
@@ -104,13 +94,12 @@ function traceRays() {
     var hasIntersected = 10;
 
     
-    /*
-
+    var t = findIntersectionTime(vertices[2],vertices[3],vertices[6],rs,rv);
     for (var i=0; i<step; i++) {
 	rs_new = add(rs, scale(rc/step,rv));
 	pointsArray.push(rs);
 	pointsArray.push(rs_new);
-	if (hasIntersected < i*rc/step) {
+	if (i*rc/step<t) {
 	    colorsArray.push(vec4(0,0,0,1));
 	    colorsArray.push(vec4(0,0,0,1));
 	} else {
@@ -118,10 +107,9 @@ function traceRays() {
 	    colorsArray.push(vec4(1,0,0,1));
 	}
         rs = rs_new;
-        hasIntersected = findPlaneEq(vertices[2],vertices[3],vertices[6],rs,rv);
     }
-    */
 
+    /*
     var t = findIntersectionTime(vertices[2],vertices[3],vertices[6],rs,rv);
     var rend = add(rs, scale(t, rv));
     alert(rend);
@@ -129,6 +117,7 @@ function traceRays() {
     pointsArray.push(rend);
     colorsArray.push(vec4(1,0,0,1));
     colorsArray.push(vec4(0,1,0,1));
+    */
 
 
 
