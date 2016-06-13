@@ -84,56 +84,51 @@ function colorCube()
     quad( 5, 4, 0, 1 );
 }
 
-function findPlaneEq(p1, p2, p3, rs, rv) {
+function findIntersectionTime(p1, p2, p3, rs, rv) {
     
-    //alert(p1);
-    //alert(p2);
     var diff1 = subtract(p1,p2);
     var diff2 = subtract(p1,p3);
-    var norm = vec4(cross(diff1, diff2),1);
-    //alert(diff2);
-    //alert(norm);
-    //alert(subtract(p1,rs));
-    var t = dot(negate(norm),subtract(p1,rs))/dot(norm,rv);
-    alert(t);
-    if (t < 1) { 
-	return true;
-    } else {
-	return false;
-    }
+    var norm = vec4(cross(diff1, diff2),0.0);
+    var subt = subtract(p1,rs);
+    var t = dot(norm,subt)/dot(norm,rv);
+    return t;
 }
 
 function traceRays() {
 
     var rs_new;
-    var rs = vec4(-3.0, 0.0,-1.0, 1.0); //ray position
-    var rv = vec4( 1.0,-0.2, 0.0, 0.0); //ray velocity
+    var rs = vec4(-3.0,-3.0,-1.0, 1.0); //ray position
+    var rv = vec4( 1.0, 0.2, 0.0, 0.0); //ray velocity
     var rc = 5; //ray "segment count"
     var step = 25;
-    var hasIntersected = false;
+    var hasIntersected = 10;
 
     
+    /*
+
     for (var i=0; i<step; i++) {
 	rs_new = add(rs, scale(rc/step,rv));
 	pointsArray.push(rs);
-	//alert(rs);
-	//alert(rs_new);
 	pointsArray.push(rs_new);
-	if (hasIntersected) {
+	if (hasIntersected < i*rc/step) {
 	    colorsArray.push(vec4(0,0,0,1));
 	    colorsArray.push(vec4(0,0,0,1));
 	} else {
 	    colorsArray.push(vec4(1,0,0,1));
 	    colorsArray.push(vec4(1,0,0,1));
 	}
-	//rv[1] = -1 * rv[1];
         rs = rs_new;
         hasIntersected = findPlaneEq(vertices[2],vertices[3],vertices[6],rs,rv);
     }
-    
+    */
 
-
-
+    var t = findIntersectionTime(vertices[2],vertices[3],vertices[6],rs,rv);
+    var rend = add(rs, scale(t, rv));
+    alert(rend);
+    pointsArray.push(rs);
+    pointsArray.push(rend);
+    colorsArray.push(vec4(1,0,0,1));
+    colorsArray.push(vec4(0,1,0,1));
 
 
 
@@ -189,10 +184,10 @@ window.onload = function init() {
     //document.getElementById("Button2").onclick = function(){near *= 0.9; far *= 0.9;};
     //document.getElementById("Button3").onclick = function(){radius *= 1.1;};
     //document.getElementById("Button4").onclick = function(){radius *= 0.9;};
-    //document.getElementById("Button5").onclick = function(){theta += dr;};
-    //document.getElementById("Button6").onclick = function(){theta -= dr;};
-    //document.getElementById("Button7").onclick = function(){phi += dr;};
-    //document.getElementById("Button8").onclick = function(){phi -= dr;};
+    document.getElementById("Button5").onclick = function(){theta += dr;};
+    document.getElementById("Button6").onclick = function(){theta -= dr;};
+    document.getElementById("Button7").onclick = function(){phi += dr;};
+    document.getElementById("Button8").onclick = function(){phi -= dr;};
        
     render();
 }
