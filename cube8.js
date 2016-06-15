@@ -17,6 +17,7 @@ var vertices = [
         vec4( 0,  0, -3, 1.0 ),
         vec4( 0, -3, -3, 1.0 ),
     ];
+var center = vec4( -1.5, -1.5, -1.5, 1.0);
 
 var near = -7;
 var far = 7;
@@ -61,7 +62,12 @@ function quad(a, b, c, d) {
     var diff1 = subtract(vertices[a],vertices[b]);
     var diff2 = subtract(vertices[a],vertices[c]);
     var norm = vec4(cross(diff2, diff1),0.0);
+    //var outsideCheck = dot(norm, subtract(vertices[b],center));
+    //if (outsideCheck > 0) {
     normalsArray.push( [norm, vertices[b]] );
+    //} else {
+    //normalsArray.push( [scale(-1,norm), vertices[b]] );
+    //}
     
     minMaxArray.push( [Math.min(vertices[a][0],
 		    	        vertices[b][0],
@@ -147,11 +153,11 @@ function findReflectionVector(i, rv) {
 function traceRays(rs) {
 
     var rs_new;
-    //var rs = vec4(-3.0,-3.0,-1.0, 1.0); //ray position
-    var rv = vec4( 1.0, 0.2, 0.1, 0.0); //ray velocity
+    var rv = vec4( 1.0, 0.2,-0.1, 0.0); //ray velocity
     var rc = 5; //ray "segment count"
     var step = 25;
     var hasIntersected = 10;
+    var numRays = 11;
 
     
     /*
@@ -160,18 +166,26 @@ function traceRays(rs) {
     var rv_new = findReflectionVector(vertices[2],vertices[3],vertices[6],rv);
     var rs_end = add(p, scale(t,rv_new));
     */
-    var ret = findIntersectionTime(rs,rv);
-    alert(ret);
-    if (ret[1] < 999) {
-        var p = add(rs, scale(ret[1],rv)); //point of potential intersection
-        var rv_new = findReflectionVector(ret[0],rv);
-        var rs_end = add(p, scale(ret[1],rv_new));
-	pointsArray.push(rs);
-	pointsArray.push(p);
-	colorsArray.push(vec4(0,0,0,1)); colorsArray.push(vec4(0,0,0,1));
-	pointsArray.push(p);
-	pointsArray.push(rs_end);
-	colorsArray.push(vec4(1,0,0,1)); colorsArray.push(vec4(1,0,0,1));
+
+
+    for(var i=0; i<numRays; i++) {
+
+        var ret = findIntersectionTime(rs,rv);
+        if (ret[1] < 999) { //only draw point if it intersects a plane
+            var p = add(rs, scale(ret[1],rv)); //point of intersection
+            var rv_new = findReflectionVector(ret[0],rv);
+	    pointsArray.push(rs);
+	    pointsArray.push(p);
+	    colorsArray.push(vec4(0,0,0,1)); colorsArray.push(vec4(0,0,0,1));
+	    /*
+	    pointsArray.push(p);
+            var rs_end = add(p, scale(ret[1],rv_new));
+	    pointsArray.push(rs_end);
+	    colorsArray.push(vec4(1,0,0,1)); colorsArray.push(vec4(1,0,0,1));
+	    */
+	    rs = p;
+	    rv = rv_new;
+	}
     }
 
     /*
@@ -217,10 +231,9 @@ window.onload = function init() {
     gl.useProgram( program );
     
     colorCube();
-    //computeNormalsAndSuch();
     traceRays(vec4(-3.0,-3.0,-1.0, 1.0));
-    traceRays(vec4(-3.0,-2.0,-2.0, 1.0));
-    traceRays(vec4(-3.0, 0.0,-1.0, 1.0));
+    //traceRays(vec4(-3.0,-2.0,-2.0, 1.0));
+    //traceRays(vec4(-2.0,-1.0,-1.0, 1.0));
 
     var cBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
