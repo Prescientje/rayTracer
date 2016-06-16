@@ -8,28 +8,27 @@ var colorsArray = [];
 var normalsArray = []; //each element is [ vec4normal, vec4point ]
 var minMaxArray = []; //each element is [ minx, maxx, miny, maxy, minz, maxz ]
 var vertices = [
-        vec4( -3, -3,  0, 1.0 ),
-        vec4( -3,  0,  0, 1.0 ),
-        vec4( 0,  0,  0, 1.0 ),
-        vec4( 0, -3,  0, 1.0 ),
-        vec4( -3, -3, -3, 1.0 ),
-        vec4( -3,  0, -3, 1.0 ),
-        vec4( 0,  0, -3, 1.0 ),
-        vec4( 0, -3, -3, 1.0 ),
+        vec4( -5, -4,  1, 1.0 ),
+        vec4( -5,  1,  1, 1.0 ),
+        vec4(  0,  1,  1, 1.0 ),
+        vec4(  0, -4,  1, 1.0 ),
+        vec4( -5, -4, -4, 1.0 ),
+        vec4( -5,  1, -4, 1.0 ),
+        vec4(  0,  1, -4, 1.0 ),
+        vec4(  0, -4, -4, 1.0 ),
     ];
-var center = vec4( -1.5, -1.5, -1.5, 1.0);
 
-var near = -7;
-var far = 7;
+var near = -9;
+var far = 9;
 var radius = 1.0;
 var theta  = 1.0;
 var phi    = 1.0;
 var dr = 30.0 * Math.PI/180.0;
 
-var left = -5.0;
-var right = 5.0;
-var ytop = 5.0;
-var bottom = -5.0;
+var left = -6.0;
+var right = 6.0;
+var ytop =  6.0;
+var bottom = -6.0;
 
 var modelViewMatrix, projectionMatrix;
 var modelViewMatrixLoc, projectionMatrixLoc;
@@ -105,15 +104,6 @@ function colorCube() {
 }
 
 function findIntersectionTime(rs, rv) {
-    /*
-    p1, p2, p3, rs, rv
-    var diff1 = subtract(p2,p1);
-    var diff2 = subtract(p3,p1);
-    var norm = vec4(cross(diff2, diff1),0.0);
-    var subt = subtract(p1,rs);
-    var t = dot(norm,subt)/dot(norm,rv);
-    return t;
-    */
     var min_i = 1000;
     var min_t = 1000;
 
@@ -121,7 +111,7 @@ function findIntersectionTime(rs, rv) {
         var subt = subtract(normalsArray[i][1],rs);
 	var t = dot(normalsArray[i][0],subt)/dot(normalsArray[i][0],rv);
 	var p = add(rs, scale(t,rv)); //point of potential intersection
-	if (p[0] >= minMaxArray[i][0]-0.0001 && p[0] <= minMaxArray[i][1]+0.0001 && 
+	if (p[0] >= minMaxArray[i][0]-0.0001 && p[0] <= minMaxArray[i][1]+0.0001 &&
             p[1] >= minMaxArray[i][2]-0.0001 && p[1] <= minMaxArray[i][3]+0.0001 &&
             p[2] >= minMaxArray[i][4]-0.0001 && p[2] <= minMaxArray[i][5]+0.0001 ) {
             //inside actual object plane
@@ -129,32 +119,21 @@ function findIntersectionTime(rs, rv) {
 		//intersects first and actually intersects
 	        min_t = t;
 		min_i = i;
+		//alert(rs + " hit " + i);
+	    } else {
+		//alert(rv);
 	    }
 	} else {
-	    //alert(p[0] >= minMaxArray[i][0]);
-	    //alert(p[0] <= minMaxArray[i][1]);
-	    //alert(p[1] >= minMaxArray[i][2]);
-	    //alert(p[1] <= minMaxArray[i][3]);
-	    //alert(p[2] >= minMaxArray[i][4]);
-	    //alert(p[2] <= minMaxArray[i][5]);
+	    //alert(rs + " miss " + i);
 	}
     }
     return [min_i, min_t];
 }
 
 function findReflectionVector(i, rv) {
-    /*
-    p1, p2, p3, rv
-    var diff1 = subtract(p2,p1);
-    var diff2 = subtract(p3,p2);
-    var norm = vec4(cross(diff1, diff2), 0.0);
-    var rvnorm = normalize(rv, true);
-    var normnorm = normalize(norm, true);
-    return scale(-1,subtract(scale(2*dot(rvnorm,normnorm), normnorm), rvnorm));
-    */
     var rvnorm = normalize(rv, true);
     var normnorm = normalize(normalsArray[i][0], true);
-    return scale(-1,subtract(scale(2*dot(rvnorm,normnorm), normnorm), rvnorm));
+    return add(scale(-2*dot(rvnorm,normnorm), normnorm), rvnorm);
 }
 
 function traceRays(rs) {
@@ -162,18 +141,7 @@ function traceRays(rs) {
     var rs_new;
     var rv = vec4( 0.7, 0.3,-0.21, 0.0); //ray velocity
     var rc = 5; //ray "segment count"
-    var step = 25;
-    var hasIntersected = 10;
-    var numRays = 100;
-
-    
-    /*
-    var t = findIntersectionTime(vertices[2],vertices[3],vertices[6],rs,rv);
-    var p = add(rs, scale(t,rv));
-    var rv_new = findReflectionVector(vertices[2],vertices[3],vertices[6],rv);
-    var rs_end = add(p, scale(t,rv_new));
-    */
-
+    var numRays = 35;
 
     for(var i=0; i<numRays; i++) {
 
@@ -184,55 +152,23 @@ function traceRays(rs) {
 	    pointsArray.push(rs);
 	    pointsArray.push(p);
 	    colorsArray.push(vec4(1,0,0,1)); colorsArray.push(vec4(1,0,0,1));
-	    /*
-	    pointsArray.push(p);
-            var rs_end = add(p, scale(ret[1],rv_new));
-	    pointsArray.push(rs_end);
-	    colorsArray.push(vec4(1,0,0,1)); colorsArray.push(vec4(1,0,0,1));
-	    */
 	    rs = p;
 	    rv = rv_new;
+	    //alert(rv_new);
 	} else {
-	    alert(i);
-	    alert(rs);
+	    //alert(i);
 	    break;
 	}
     }
-
-    /*
-    for (var i=0; i<step; i++) {
-	rs_new = add(rs, scale(rc/step,rv));
-	pointsArray.push(rs);
-	pointsArray.push(rs_new);
-	if (i*rc/step<t) {
-	    colorsArray.push(vec4(0,0,0,1)); colorsArray.push(vec4(0,0,0,1));
-	} else {
-	    colorsArray.push(vec4(1,0,0,1)); colorsArray.push(vec4(1,0,0,1));
-	}
-        rs = rs_new;
-    }
-    var t = findIntersectionTime(vertices[2],vertices[3],vertices[6],rs,rv);
-    var rend = add(rs, scale(t, rv));
-    alert(rend);
-    pointsArray.push(rs);
-    pointsArray.push(rend);
-    colorsArray.push(vec4(1,0,0,1));
-    colorsArray.push(vec4(0,1,0,1));
-    */
-
 }
 
 
 window.onload = function init() {
     canvas = document.getElementById( "gl-canvas" );
-    
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
-
     gl.viewport( 0, 0, canvas.width, canvas.height );
-    
     gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
-    
     gl.enable(gl.DEPTH_TEST);
 
     //
@@ -242,15 +178,15 @@ window.onload = function init() {
     gl.useProgram( program );
     
     colorCube();
-    traceRays(vec4(-2.0,-2.2,-1.0, 1.0));
-    //traceRays(vec4(-3.0,-2.0,-2.0, 1.0));
-    //traceRays(vec4(-2.0,-1.0,-1.0, 1.0));
-    //for(var i=0; i<normalsArray.length; i++) {
+    //for(var i=0; i<6; i++) {
         //pointsArray.push(vec4(0,0,0,1));
 	//colorsArray.push(vec4(1,0,0,1));
 	//pointsArray.push(add(vec4(0,0,0,1), normalsArray[i][0]));
 	//colorsArray.push(vec4(0,1,0,1));
     //}
+    traceRays(vec4(-2.0,-2.2,-1.0, 1.0));
+    //traceRays(vec4(-3.0,-2.0,-2.0, 1.0));
+    //traceRays(vec4(-2.0,-1.0,-1.0, 1.0));
 
     var cBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
