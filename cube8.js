@@ -60,7 +60,7 @@ function quad(a, b, c, d) {
     colorsArray.push(vec4( 0.0, 0.0, 0.0, 1.0 ));   // black
 
     var diff1 = subtract(vertices[a],vertices[b]);
-    var diff2 = subtract(vertices[a],vertices[c]);
+    var diff2 = subtract(vertices[b],vertices[c]);
     var norm = vec4(cross(diff2, diff1),0.0);
     //var outsideCheck = dot(norm, subtract(vertices[b],center));
     //if (outsideCheck > 0) {
@@ -97,9 +97,9 @@ function quad(a, b, c, d) {
 
 function colorCube() {
     quad( 1, 0, 3, 2 );
-    quad( 2, 3, 7, 6 );
+    quad( 7, 6, 2, 3 );
     quad( 3, 0, 4, 7 );
-    quad( 6, 5, 1, 2 );
+    quad( 5, 1, 2, 6 );
     quad( 4, 5, 6, 7 );
     quad( 5, 4, 0, 1 );
 }
@@ -121,15 +121,22 @@ function findIntersectionTime(rs, rv) {
         var subt = subtract(normalsArray[i][1],rs);
 	var t = dot(normalsArray[i][0],subt)/dot(normalsArray[i][0],rv);
 	var p = add(rs, scale(t,rv)); //point of potential intersection
-	if (p[0] >= minMaxArray[i][0] && p[0] <= minMaxArray[i][1] && 
-            p[1] >= minMaxArray[i][2] && p[1] <= minMaxArray[i][3] &&
-            p[2] >= minMaxArray[i][4] && p[2] <= minMaxArray[i][5]) {
+	if (p[0] >= minMaxArray[i][0]-0.0001 && p[0] <= minMaxArray[i][1]+0.0001 && 
+            p[1] >= minMaxArray[i][2]-0.0001 && p[1] <= minMaxArray[i][3]+0.0001 &&
+            p[2] >= minMaxArray[i][4]-0.0001 && p[2] <= minMaxArray[i][5]+0.0001 ) {
             //inside actual object plane
 	    if (t < min_t && t > 0) {
 		//intersects first and actually intersects
 	        min_t = t;
 		min_i = i;
 	    }
+	} else {
+	    //alert(p[0] >= minMaxArray[i][0]);
+	    //alert(p[0] <= minMaxArray[i][1]);
+	    //alert(p[1] >= minMaxArray[i][2]);
+	    //alert(p[1] <= minMaxArray[i][3]);
+	    //alert(p[2] >= minMaxArray[i][4]);
+	    //alert(p[2] <= minMaxArray[i][5]);
 	}
     }
     return [min_i, min_t];
@@ -153,11 +160,11 @@ function findReflectionVector(i, rv) {
 function traceRays(rs) {
 
     var rs_new;
-    var rv = vec4( 1.0, 0.2,-0.1, 0.0); //ray velocity
+    var rv = vec4( 0.7, 0.3,-0.21, 0.0); //ray velocity
     var rc = 5; //ray "segment count"
     var step = 25;
     var hasIntersected = 10;
-    var numRays = 11;
+    var numRays = 100;
 
     
     /*
@@ -176,7 +183,7 @@ function traceRays(rs) {
             var rv_new = findReflectionVector(ret[0],rv);
 	    pointsArray.push(rs);
 	    pointsArray.push(p);
-	    colorsArray.push(vec4(0,0,0,1)); colorsArray.push(vec4(0,0,0,1));
+	    colorsArray.push(vec4(1,0,0,1)); colorsArray.push(vec4(1,0,0,1));
 	    /*
 	    pointsArray.push(p);
             var rs_end = add(p, scale(ret[1],rv_new));
@@ -185,6 +192,10 @@ function traceRays(rs) {
 	    */
 	    rs = p;
 	    rv = rv_new;
+	} else {
+	    alert(i);
+	    alert(rs);
+	    break;
 	}
     }
 
@@ -231,9 +242,15 @@ window.onload = function init() {
     gl.useProgram( program );
     
     colorCube();
-    traceRays(vec4(-3.0,-3.0,-1.0, 1.0));
+    traceRays(vec4(-2.0,-2.2,-1.0, 1.0));
     //traceRays(vec4(-3.0,-2.0,-2.0, 1.0));
     //traceRays(vec4(-2.0,-1.0,-1.0, 1.0));
+    //for(var i=0; i<normalsArray.length; i++) {
+        //pointsArray.push(vec4(0,0,0,1));
+	//colorsArray.push(vec4(1,0,0,1));
+	//pointsArray.push(add(vec4(0,0,0,1), normalsArray[i][0]));
+	//colorsArray.push(vec4(0,1,0,1));
+    //}
 
     var cBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
