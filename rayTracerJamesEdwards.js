@@ -6,66 +6,37 @@ var gl;
 var numTimesToSubdivide = 5;
  
 var index = 0;
-//var numVertices = 36+28;
 
 var pointsArray = [];
 var normalsArray = [];
 var colorsArray = [];
-var texCoordsArray = [];
 
-var vertices = [
-        //vec4( -5, -5, -1, 1.0 ),
-        //vec4( -5, -1, -1, 1.0 ),
-        //vec4( -1, -1, -1, 1.0 ),
-        //vec4( -1, -5, -1, 1.0 ),
-        //vec4( -5, -5, -5, 1.0 ),
-        //vec4( -5, -1, -5, 1.0 ),
-        //vec4( -1, -1, -5, 1.0 ),
-        //vec4( -1, -5, -5, 1.0 ),
-//
-        //vec4( 3,  0,  3, 1.0 ),
-        //vec4( 3,  0,  0, 1.0 ),
-        //vec4( 6,  0,  0, 1.0 ),
-        //vec4( 6,  0,  3, 1.0 ),
-        //vec4( 4.5,  2.8,  2.5, 1.0 )
-    ];
+var vertices = [];
 
-var texCoord = [
-		vec2(0,0),
-		vec2(0,1),
-		vec2(1,1),
-		vec2(1,0)
-];
 
 function quad(a, b, c, d) {
      pointsArray.push(vertices[a]); 
      //colorsArray.push(vertexColors[a]); 
-     texCoordsArray.push(texCoord[0]);
      normalsArray.push(vertices[a]);
 	 
      pointsArray.push(vertices[b]); 
      //colorsArray.push(vertexColors[a]); 
-     texCoordsArray.push(texCoord[1]);
      normalsArray.push(vertices[b]);
 	 
      pointsArray.push(vertices[c]); 
      //colorsArray.push(vertexColors[a]);    
-     texCoordsArray.push(texCoord[2]);
      normalsArray.push(vertices[c]);
 	 
      pointsArray.push(vertices[a]); 
      //colorsArray.push(vertexColors[a]); 
-     texCoordsArray.push(texCoord[0]);
      normalsArray.push(vertices[a]);
 
      pointsArray.push(vertices[c]); 
      //colorsArray.push(vertexColors[a]); 
-     texCoordsArray.push(texCoord[2]);
      normalsArray.push(vertices[c]);
 
      pointsArray.push(vertices[d]); 
      //colorsArray.push(vertexColors[a]); 
-     texCoordsArray.push(texCoord[3]);
      normalsArray.push(vertices[d]);
 
      index += 6;
@@ -105,7 +76,6 @@ function colorCube()
     generateCube(-2,-1,-2);
     generateCube( 0,-1,-2);
     generateCube( 2,-1,-2);
-
 
     generateCube( 3,-2, 2);
     generateCube( 4,-2, 2);
@@ -188,10 +158,6 @@ var eye;
 var at = vec3(0.0, 0.0, 0.0);
 var up = vec3(0.0, 1.0, 0.0);
 
-var texSize = 64;
-var numRows = 8;
-var numCols = 8;
-var myTexels = new Uint8Array(11*4*texSize*texSize);
     
 function triangle(a, b, c) {
 
@@ -258,39 +224,6 @@ window.onload = function init() {
     var program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
     
-    // Set up texture map
-	
-    //for (var w=0; w<11; w++) {
-    	for (var i=0; i<texSize; i++) {
-	    for (var j=0; j<texSize; j++) {
-	        var patchx = Math.floor(i/(texSize/numRows));
-	        var patchy = Math.floor(j/(texSize/numCols));
-	        var c = (patchx%2 !== patchy%2 ? 255 : 0);
-	        var loc = 4*i*texSize+4*j;// + (w*texSize*texSize);
-	        myTexels[loc] = c;
-	        myTexels[loc+1] = c;
-	        myTexels[loc+2] = c;
-	        myTexels[loc+3] = 255;
-	    }
-        }
-    //}
-    for (var c=0; c<4; c++) {
-	//myTexels[11*texSize*texSize+c] = 255;
-    }
-    
-	
-    var texture = gl.createTexture();
-    gl.bindTexture (gl.TEXTURE_2D, texture);
-    gl.texImage2D (gl.TEXTURE_2D, 0, gl.RGBA, texSize, texSize, 0, gl.RGBA, gl.UNSIGNED_BYTE, myTexels);
-    //gl.texParameteri (gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    //gl.texParameteri (gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    //gl.texParameteri (gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT);
-    //gl.texParameteri (gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT);
-    //gl.texParameteri (gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    //gl.texParameteri (gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.generateMipmap( gl.TEXTURE_2D );
-    gl.uniform1i(gl.getUniformLocation(program, "texMap"), 0);
-
     ambientProduct = mult(lightAmbient, materialAmbient);
     diffuseProduct = mult(lightDiffuse, materialDiffuse);
     specularProduct = mult(lightSpecular, materialSpecular);

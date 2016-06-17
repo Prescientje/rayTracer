@@ -8,27 +8,27 @@ var colorsArray = [];
 var normalsArray = []; //each element is [ vec4normal, vec4point ]
 var minMaxArray = []; //each element is [ minx, maxx, miny, maxy, minz, maxz ]
 var vertices = [
-        vec4( -5, -4,  1, 1.0 ),
-        vec4( -5,  1,  1, 1.0 ),
-        vec4(  0,  1,  1, 1.0 ),
-        vec4(  0, -4,  1, 1.0 ),
-        vec4( -5, -4, -4, 1.0 ),
-        vec4( -5,  1, -4, 1.0 ),
-        vec4(  0,  1, -4, 1.0 ),
-        vec4(  0, -4, -4, 1.0 ),
+        vec4( -10, -10,  10, 1.0 ),
+        vec4( -10,  10,  10, 1.0 ),
+        vec4(  10,  10,  10, 1.0 ),
+        vec4(  10, -10,  10, 1.0 ),
+        vec4( -10, -10, -10, 1.0 ),
+        vec4( -10,  10, -10, 1.0 ),
+        vec4(  10,  10, -10, 1.0 ),
+        vec4(  10, -10, -10, 1.0 ),
     ];
 
-var near = -9;
-var far = 9;
+var near = -20;
+var far = 20;
 var radius = 1.0;
 var theta  = 1.0;
 var phi    = 1.0;
-var dr = 30.0 * Math.PI/180.0;
+var dr = 15.0 * Math.PI/180.0;
 
-var left = -6.0;
-var right = 6.0;
-var ytop =  6.0;
-var bottom = -6.0;
+var left = -20.0;
+var right = 20.0;
+var ytop =  20.0;
+var bottom = -20.0;
 
 var modelViewMatrix, projectionMatrix;
 var modelViewMatrixLoc, projectionMatrixLoc;
@@ -59,7 +59,7 @@ function quad(a, b, c, d) {
     colorsArray.push(vec4( 0.0, 0.0, 0.0, 1.0 ));   // black
 
     var diff1 = subtract(vertices[a],vertices[b]);
-    var diff2 = subtract(vertices[b],vertices[c]);
+    var diff2 = subtract(vertices[a],vertices[c]);
     var norm = vec4(cross(diff2, diff1),0.0);
     //var outsideCheck = dot(norm, subtract(vertices[b],center));
     //if (outsideCheck > 0) {
@@ -94,13 +94,77 @@ function quad(a, b, c, d) {
 			        vertices[d][2]) ]);
 }
 
-function colorCube() {
+function generateCube(x, y, z) {
+    // makes a unit cube with that point at the center
+    // adds the points to the verticesList
+    vertices.push( vec4( x-0.5, y-0.5, z+0.5));
+    vertices.push( vec4( x-0.5, y+0.5, z+0.5));
+    vertices.push( vec4( x+0.5, y+0.5, z+0.5));
+    vertices.push( vec4( x+0.5, y-0.5, z+0.5));
+    vertices.push( vec4( x-0.5, y-0.5, z-0.5));
+    vertices.push( vec4( x-0.5, y+0.5, z-0.5));
+    vertices.push( vec4( x+0.5, y+0.5, z-0.5));
+    vertices.push( vec4( x+0.5, y-0.5, z-0.5));
     quad( 1, 0, 3, 2 );
     quad( 7, 6, 2, 3 );
     quad( 3, 0, 4, 7 );
     quad( 5, 1, 2, 6 );
     quad( 4, 5, 6, 7 );
     quad( 5, 4, 0, 1 );
+    vertices=[];
+}
+
+function draw() {
+    generateCube(-8, 8, 0);
+    generateCube(-7, 8, 0);
+    generateCube(-6, 8, 0);
+    generateCube(-7, 7, 1);
+    generateCube(-7, 6,-4);
+    generateCube(-8, 5, 2);
+    generateCube(-7, 5, 1);
+
+    generateCube(-5, 4,-1);
+    generateCube(-4, 4,-1);
+    generateCube(-3, 4,-1);
+    generateCube(-5, 3,-2);
+    generateCube(-3, 3,-2);
+    generateCube(-5, 2,-1);
+    generateCube(-4, 2,-1);
+    generateCube(-3, 2,-1);
+    generateCube(-5, 1,-1);
+    generateCube(-3, 1,-1);
+    
+    generateCube(-2, 1,-2);
+    generateCube(-1, 0.5,-2);
+    //generateCube( 0, 1,-2);
+    generateCube( 1, 0.5,-2);
+    generateCube( 2, 1,-2);
+    generateCube(-2, 0,-2);
+    generateCube( 0, 0,-2);
+    generateCube( 2, 0,-2);
+    generateCube(-2,-1,-2);
+    generateCube( 0,-1,-2);
+    generateCube( 2,-1,-2);
+
+    generateCube( 3,-2, 2);
+    generateCube( 4,-2, 2);
+    generateCube( 5,-2, 2);
+    generateCube( 3,-3, 2);
+    generateCube( 4,-3.5, 2);
+    generateCube( 3,-4, 2);
+    generateCube( 3,-5, 2);
+    generateCube( 4,-5, 2);
+    generateCube( 5,-5, 2);
+
+    generateCube( 6,-6, 2);
+    generateCube( 7,-6, 2);
+    generateCube( 8,-6, 2);
+    generateCube( 6,-7, 2);
+    generateCube( 7,-7.5, 2);
+    generateCube( 8,-8, 2);
+    generateCube( 6,-9, 2);
+    generateCube( 7,-9, 2);
+    generateCube( 8,-9, 2);
 }
 
 function findIntersectionTime(rs, rv) {
@@ -141,7 +205,7 @@ function traceRays(rs) {
     var rs_new;
     var rv = vec4( 0.7, 0.3,-0.21, 0.0); //ray velocity
     var rc = 5; //ray "segment count"
-    var numRays = 35;
+    var numRays = 135;
 
     for(var i=0; i<numRays; i++) {
 
@@ -177,14 +241,15 @@ window.onload = function init() {
     var program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
     
-    colorCube();
-    //for(var i=0; i<6; i++) {
+    draw();
+    for(var i=0; i<6; i++) {
         //pointsArray.push(vec4(0,0,0,1));
 	//colorsArray.push(vec4(1,0,0,1));
 	//pointsArray.push(add(vec4(0,0,0,1), normalsArray[i][0]));
 	//colorsArray.push(vec4(0,1,0,1));
-    //}
-    traceRays(vec4(-2.0,-2.2,-1.0, 1.0));
+	alert(minMaxArray[i]);
+    }
+    traceRays(vec4(-3.0,-2.2,-1.0, 1.0));
     //traceRays(vec4(-3.0,-2.0,-2.0, 1.0));
     //traceRays(vec4(-2.0,-1.0,-1.0, 1.0));
 
