@@ -8,8 +8,10 @@ var numTimesToSubdivide = 5;
 var index = 0;
 
 var pointsArray = [];
-var normalsArray = [];
+var normalsArray = []; //each element is [ vec4normal, vec4point ]
+var minMaxArray = []; //each element is [ minx, maxx, miny, maxy, minz, maxz ]
 var colorsArray = [];
+var reflectiveArray = [];
 
 var vertices = [];
 
@@ -40,62 +42,93 @@ function quad(a, b, c, d) {
      normalsArray.push(vertices[d]);
 
      index += 6;
+
+
+    var diff1 = subtract(vertices[a],vertices[b]);
+    var diff2 = subtract(vertices[a],vertices[c]);
+    var norm = vec4(cross(diff2, diff1),0.0);
+    //normalsArray.push( [norm, vertices[b]] );
+    minMaxArray.push( [Math.min(vertices[a][0],
+		    	        vertices[b][0],
+			        vertices[c][0],
+			        vertices[d][0]),
+    		       Math.max(vertices[a][0],
+		    	        vertices[b][0],
+			        vertices[c][0],
+			        vertices[d][0]),
+                       Math.min(vertices[a][1],
+		    	        vertices[b][1],
+			        vertices[c][1],
+			        vertices[d][1]),
+                       Math.max(vertices[a][1],
+		    	        vertices[b][1],
+			        vertices[c][1],
+			        vertices[d][1]),
+                       Math.min(vertices[a][2],
+		    	        vertices[b][2],
+			        vertices[c][2],
+			        vertices[d][2]),
+                       Math.max(vertices[a][2],
+		    	        vertices[b][2],
+			        vertices[c][2],
+			        vertices[d][2]) ]);
+
 }
 
 // Each face determines two triangles
 
-function colorCube()
+function draw()
 {
-    generateCube(-8, 8, 0);
-    generateCube(-7, 8, 0);
-    generateCube(-6, 8, 0);
-    generateCube(-7, 7, 1);
-    generateCube(-7, 6,-4);
-    generateCube(-8, 5, 2);
-    generateCube(-7, 5, 1);
+    generateCube(-8, 8,-1);
+    generateCube(-7, 8,-1);
+    generateCube(-6, 8,-1);
+    generateCube(-7, 7,-1);
+    generateCube(-7, 6,-1);
+    generateCube(-8, 5,-1);
+    generateCube(-7, 5,-1);
 
     generateCube(-5, 4,-1);
     generateCube(-4, 4,-1);
     generateCube(-3, 4,-1);
-    generateCube(-5, 3,-2);
-    generateCube(-3, 3,-2);
+    generateCube(-5, 3,-1);
+    generateCube(-3, 3,-1);
     generateCube(-5, 2,-1);
     generateCube(-4, 2,-1);
     generateCube(-3, 2,-1);
     generateCube(-5, 1,-1);
     generateCube(-3, 1,-1);
     
-    generateCube(-2, 1,-2);
-    generateCube(-1, 0.5,-2);
-    //generateCube( 0, 1,-2);
-    generateCube( 1, 0.5,-2);
-    generateCube( 2, 1,-2);
-    generateCube(-2, 0,-2);
-    generateCube( 0, 0,-2);
-    generateCube( 2, 0,-2);
-    generateCube(-2,-1,-2);
-    generateCube( 0,-1,-2);
-    generateCube( 2,-1,-2);
+    generateCube(-2, 1,-1);
+    generateCube(-1, 0.5,-1);
+    //generateCube( 0, 1,-1);
+    generateCube( 1, 0.5,-1);
+    generateCube( 2, 1,-1);
+    generateCube(-2, 0,-1);
+    generateCube( 0, 0,-1);
+    generateCube( 2, 0,-1);
+    generateCube(-2,-1,-1);
+    generateCube( 0,-1,-1);
+    generateCube( 2,-1,-1);
 
-    generateCube( 3,-2, 2);
-    generateCube( 4,-2, 2);
-    generateCube( 5,-2, 2);
-    generateCube( 3,-3, 2);
-    generateCube( 4,-3.5, 2);
-    generateCube( 3,-4, 2);
-    generateCube( 3,-5, 2);
-    generateCube( 4,-5, 2);
-    generateCube( 5,-5, 2);
+    generateCube( 3,-2,-1);
+    generateCube( 4,-2,-1);
+    generateCube( 5,-2,-1);
+    generateCube( 3,-3,-1);
+    generateCube( 4,-3.5,-1);
+    generateCube( 3,-4,-1);
+    generateCube( 3,-5,-1);
+    generateCube( 4,-5,-1);
+    generateCube( 5,-5,-1);
 
-    generateCube( 6,-6, 2);
-    generateCube( 7,-6, 2);
-    generateCube( 8,-6, 2);
-    generateCube( 6,-7, 2);
-    generateCube( 7,-7.5, 2);
-    generateCube( 8,-8, 2);
-    generateCube( 6,-9, 2);
-    generateCube( 7,-9, 2);
-    generateCube( 8,-9, 2);
+    generateCube( 6,-6,-1);
+    generateCube( 7,-6,-1);
+    generateCube( 8,-6,-1);
+    generateCube( 6,-7,-1);
+    generateCube( 7,-7.5,-1);
+    generateCube( 8,-8,-1);
+    generateCube( 6,-9,-1);
+    generateCube( 7,-9,-1);
+    generateCube( 8,-9,-1);
 
 
 }
@@ -122,10 +155,10 @@ function generateCube(x, y, z) {
 
 var near = -10;
 var far = 10;
-var radius = 1.5;
-var theta  = 0.0;
-var phi    = 0.0;
-var dr = 30.0 * Math.PI/180.0;
+var radius = 1.0;
+var theta  = 30.0 * Math.PI/180.0;
+var phi    = 30.0 * Math.PI/180.0;
+var dr = 15.0 * Math.PI/180.0;
 
 var left = -10.0;
 var right = 10.0;
@@ -147,7 +180,7 @@ var materialDiffuse = vec4( 1.0, 0.8, 0.0, 1.0 );
 var materialSpecular = vec4( 1.0, 0.8, 0.0, 1.0 );
 var materialShininess = 100.0;
 
-var ctm;
+var context, contextData;
 var ambientColor, diffuseColor, specularColor;
 
 var modelViewMatrix, projectionMatrix;
@@ -155,7 +188,6 @@ var modelViewMatrixLoc, projectionMatrixLoc;
 var eye;
 var at = vec3(0.0, 0.0, 0.0);
 var up = vec3(0.0, 1.0, 0.0);
-
     
 function triangle(a, b, c) {
 
@@ -207,99 +239,98 @@ function tetrahedron(a, b, c, d, n) {
 window.onload = function init() {
 
     canvas = document.getElementById( "gl-canvas" );
-    
-    gl = WebGLUtils.setupWebGL( canvas );
-    if ( !gl ) { alert( "WebGL isn't available" ); }
+    context = canvas.getContext('2d');
+    contextData = context.getImageData(0, 0, canvas.width, canvas.height);
+    var current;
+    for(var i=0; i<canvas.height; i++) {
+	for(var j=0; j<10; j++) {
+	    current = 4*i + j; 
+	    contextData.data[current] = 0;
+	    contextData.data[current+1] = 0;
+	    contextData.data[current+2] = 255;
+	    contextData.data[current+3] = 0;
+	}
+    }
 
-    gl.viewport( 0, 0, canvas.width, canvas.height );
-    gl.clearColor( 0.5, 0.5, 0.5, 1.0 );
-    
-    gl.enable(gl.DEPTH_TEST);
 
-    //
+
+    
+    //gl = WebGLUtils.setupWebGL( canvas );
+    //if ( !gl ) { alert( "WebGL isn't available" ); }
+    //gl.viewport( 0, 0, canvas.width, canvas.height );
+    //gl.clearColor( 0.5, 0.5, 0.5, 1.0 );
+    //gl.enable(gl.DEPTH_TEST);
     //  Load shaders and initialize attribute buffers
-    //
-    var program = initShaders( gl, "vertex-shader", "fragment-shader" );
-    gl.useProgram( program );
+    //var program = initShaders( gl, "vertex-shader", "fragment-shader" );
+    //gl.useProgram( program );
     
-    ambientProduct = mult(lightAmbient, materialAmbient);
-    diffuseProduct = mult(lightDiffuse, materialDiffuse);
-    specularProduct = mult(lightSpecular, materialSpecular);
+    //ambientProduct = mult(lightAmbient, materialAmbient);
+    //diffuseProduct = mult(lightDiffuse, materialDiffuse);
+    //specularProduct = mult(lightSpecular, materialSpecular);
     
-    colorCube();
-    alert(pointsArray[0]);
-
+    //draw();
     //tetrahedron(va, vb, vc, vd, numTimesToSubdivide);
 
-    var nBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer);
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(normalsArray), gl.STATIC_DRAW );
-    
-    var vNormal = gl.getAttribLocation( program, "vNormal" );
-    gl.vertexAttribPointer( vNormal, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vNormal);
+    //var nBuffer = gl.createBuffer();
+    //gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer);
+    //gl.bufferData( gl.ARRAY_BUFFER, flatten(normalsArray), gl.STATIC_DRAW );
+    //var vNormal = gl.getAttribLocation( program, "vNormal" );
+    //gl.vertexAttribPointer( vNormal, 4, gl.FLOAT, false, 0, 0 );
+    //gl.enableVertexAttribArray( vNormal);
+    //var vBuffer = gl.createBuffer();
+    //gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
+    //gl.bufferData(gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW);
+    //var vPosition = gl.getAttribLocation( program, "vPosition");
+    //gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
+    //gl.enableVertexAttribArray(vPosition);
+    //modelViewMatrixLoc = gl.getUniformLocation( program, "modelViewMatrix" );
+    //projectionMatrixLoc = gl.getUniformLocation( program, "projectionMatrix" );
+    //document.getElementById("Button0").onclick = function(){radius *= 2.0;};
+    //document.getElementById("Button1").onclick = function(){radius *= 0.5;};
+    //document.getElementById("Button2").onclick = function(){theta += dr;};
+    //document.getElementById("Button3").onclick = function(){theta -= dr;};
+    //document.getElementById("Button4").onclick = function(){phi += dr;};
+    //document.getElementById("Button5").onclick = function(){phi -= dr;};
+    //document.getElementById("Button6").onclick = function(){
+        //numTimesToSubdivide++; 
+        //index = 0;
+        //pointsArray = [];
+        //normalsArray = []; 
+        //init();
+    //};
+    //document.getElementById("Button7").onclick = function(){
+        //if(numTimesToSubdivide) numTimesToSubdivide--;
+        //index = 0;
+        //pointsArray = []; 
+        //normalsArray = [];
+        //init();
+    //};
+    //gl.uniform4fv( gl.getUniformLocation(program, 
+       //"ambientProduct"),flatten(ambientProduct) );
+    //gl.uniform4fv( gl.getUniformLocation(program, 
+       //"diffuseProduct"),flatten(diffuseProduct) );
+    //gl.uniform4fv( gl.getUniformLocation(program, 
+       //"specularProduct"),flatten(specularProduct) );	
+    //gl.uniform4fv( gl.getUniformLocation(program, 
+       //"lightPosition"),flatten(lightPosition) );
+    //gl.uniform1f( gl.getUniformLocation(program, 
+       //"shininess"),materialShininess );
 
-    var vBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW);
-    
-    var vPosition = gl.getAttribLocation( program, "vPosition");
-    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vPosition);
-    
-    modelViewMatrixLoc = gl.getUniformLocation( program, "modelViewMatrix" );
-    projectionMatrixLoc = gl.getUniformLocation( program, "projectionMatrix" );
-
-    document.getElementById("Button0").onclick = function(){radius *= 2.0;};
-    document.getElementById("Button1").onclick = function(){radius *= 0.5;};
-    document.getElementById("Button2").onclick = function(){theta += dr;};
-    document.getElementById("Button3").onclick = function(){theta -= dr;};
-    document.getElementById("Button4").onclick = function(){phi += dr;};
-    document.getElementById("Button5").onclick = function(){phi -= dr;};
-    document.getElementById("Button6").onclick = function(){
-        numTimesToSubdivide++; 
-        index = 0;
-        pointsArray = [];
-        normalsArray = []; 
-        init();
-    };
-    document.getElementById("Button7").onclick = function(){
-        if(numTimesToSubdivide) numTimesToSubdivide--;
-        index = 0;
-        pointsArray = []; 
-        normalsArray = [];
-        init();
-    };
-
-    gl.uniform4fv( gl.getUniformLocation(program, 
-       "ambientProduct"),flatten(ambientProduct) );
-    gl.uniform4fv( gl.getUniformLocation(program, 
-       "diffuseProduct"),flatten(diffuseProduct) );
-    gl.uniform4fv( gl.getUniformLocation(program, 
-       "specularProduct"),flatten(specularProduct) );	
-    gl.uniform4fv( gl.getUniformLocation(program, 
-       "lightPosition"),flatten(lightPosition) );
-    gl.uniform1f( gl.getUniformLocation(program, 
-       "shininess"),materialShininess );
-
-    render();
+    //render();
 }
 
 function render() {
-	    
-    gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    //gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	  
     eye = vec3(radius*Math.sin(theta)*Math.cos(phi), 
 	       radius*Math.sin(theta)*Math.sin(phi), radius*Math.cos(theta));
-
     modelViewMatrix = lookAt(eye, at , up);
     projectionMatrix = ortho(left, right, bottom, ytop, near, far);
 			            
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix) );
-    gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix) );
-				        
-    for( var i=0; i<index; i+=3) 
-        gl.drawArrays( gl.TRIANGLES, i, 3 );
+    //gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix) );
+    //gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix) );
+    //for( var i=0; i<index; i+=3) 
+        //gl.drawArrays( gl.TRIANGLES, i, 3 );
 
     requestAnimFrame(render);
 }
