@@ -120,8 +120,6 @@ function generateCube(x, y, z) {
     vertices=[];
 }
 
-
-
 var near = -10;
 var far = 10;
 var radius = 1.5;
@@ -249,15 +247,6 @@ window.onload = function init() {
     gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
     
-    var tBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoordsArray), gl.STATIC_DRAW);
-	
-    var vTexCoord = gl.getAttribLocation (program, "vTexCoord");
-    gl.vertexAttribPointer (vTexCoord, 2, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vTexCoord);
-
-
     modelViewMatrixLoc = gl.getUniformLocation( program, "modelViewMatrix" );
     projectionMatrixLoc = gl.getUniformLocation( program, "projectionMatrix" );
 
