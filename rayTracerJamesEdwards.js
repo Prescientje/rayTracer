@@ -107,11 +107,11 @@ function generateCube(x, y, z, color) {
     vertices.push( vec4( x+0.5, y+0.5, z-0.5 ));
     vertices.push( vec4( x+0.5, y-0.5, z-0.5 ));
     quad( 1, 0, 3, 2 );
-    //quad( 2, 3, 7, 6 );
-    //quad( 3, 0, 4, 7 );
-    //quad( 6, 5, 1, 2 );
-    //quad( 4, 5, 6, 7 );
-    //quad( 5, 4, 0, 1 );
+    quad( 2, 3, 7, 6 );
+    quad( 3, 0, 4, 7 );
+    quad( 6, 5, 1, 2 );
+    quad( 4, 5, 6, 7 );
+    quad( 5, 4, 0, 1 );
     vertices=[];
     for(var i=0; i<6; i++) {
         colorsArray.push(color);
@@ -196,12 +196,12 @@ var ambientColor, diffuseColor, specularColor;
 
 var modelViewMatrix, projectionMatrix;
 var modelViewMatrixLoc, projectionMatrixLoc;
-var eye = vec4(0.0, 0.0, 20.0, 1);
+var eye = vec4(5.0, 5.0, 22.0, 1);
 var at = vec4(0.0, 0.0, 0.0, 1);
 var up = vec4(0.0, 1.0, 0.0, 0);
 var n, u, v;
 var theta = 45 * Math.PI / 180; //angle of view
-var dist =  18; //distance of viewing plane from eye
+var dist =  eye[2] - 2; //distance of viewing plane from eye
 var aspect; //canvas width/height
 var width, height; //viewing plane width/height
 var tl; //top left point on the viewing plane
