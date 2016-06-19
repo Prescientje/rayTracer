@@ -11,61 +11,31 @@ var spheresArray = [];
 var vertices = [];
 var objColor;
 
-function quad(a, b, c, d) {
-    var diff1 = subtract(vertices[a],vertices[b]);
-    var diff2 = subtract(vertices[a],vertices[c]);
-    var norm = vec4(normalize(cross(diff2, diff1),false),0.0);
-    cubeNormalsArray.push( [normalize(norm, true), vertices[b]] );
-    minMaxArray.push( [Math.min(vertices[a][0],
-		    	        vertices[b][0],
-			        vertices[c][0],
-			        vertices[d][0]),
-    		       Math.max(vertices[a][0],
-		    	        vertices[b][0],
-			        vertices[c][0],
-			        vertices[d][0]),
-                       Math.min(vertices[a][1],
-		    	        vertices[b][1],
-			        vertices[c][1],
-			        vertices[d][1]),
-                       Math.max(vertices[a][1],
-		    	        vertices[b][1],
-			        vertices[c][1],
-			        vertices[d][1]),
-                       Math.min(vertices[a][2],
-		    	        vertices[b][2],
-			        vertices[c][2],
-			        vertices[d][2]),
-                       Math.max(vertices[a][2],
-		    	        vertices[b][2],
-			        vertices[c][2],
-			        vertices[d][2]) ]);
-    //colorsArray.push(setLightingColor(norm, vertices[b], objColor));
-    colorsArray.push(objColor);
-}
 
 function makeShapes()
 {
     objColor = vec4(1,0,0,1);
-    generateCube( 0, 2,-1, objColor); //start of J
-    generateCube( 1, 2,-1, objColor);
-    generateCube( 2, 2,-1, objColor);
-    generateCube( 1, 1,-1, objColor);
-    generateCube( 1, 0,-1, objColor);
-    generateCube( 0,-1,-1, objColor);
-    generateCube( 1,-1,-1, objColor);
+    generateCube( 0, 2,-1); //start of J
+    generateCube( 1, 2,-1);
+    generateCube( 2, 2,-1);
+    generateCube( 1, 1,-1);
+    generateCube( 1, 0,-1);
+    generateCube( 0,-1,-1);
+    generateCube( 1,-1,-1);
 
-    generateCube( 3,-2,-1, objColor); //start of E
-    generateCube( 4,-2,-1, objColor);
-    generateCube( 5,-2,-1, objColor);
-    generateCube( 3,-3,-1, objColor);
-    generateCube( 4,-3.5,-1, objColor);
-    generateCube( 3,-4,-1, objColor);
-    generateCube( 3,-5,-1, objColor);
-    generateCube( 4,-5,-1, objColor);
-    generateCube( 5,-5,-1, objColor);
+    generateCube( 3,-2,-1); //start of E
+    generateCube( 4,-2,-1);
+    generateCube( 5,-2,-1);
+    generateCube( 3,-3,-1);
+    generateCube( 4,-3.5,-1);
+    generateCube( 3,-4,-1);
+    generateCube( 3,-5,-1);
+    generateCube( 4,-5,-1);
+    generateCube( 5,-5,-1);
 
-    generateSphere( -2,-1,0,2, vec4(0,1,0,1));
+    generateSphere( 4, 4,-2, 2, vec4(0,1,0,1));
+
+    generateQuad( 5, 0,-5, 50, 50, 0.5, vec4(1,1,1,1), true);
 
     /*
     generateCube(-5.5, 4,-1, color); //start of A
@@ -103,24 +73,63 @@ function makeShapes()
     */
 }
 
-function generateCube(x, y, z, color) {
-    // makes a unit cube with that point at the center
-    // adds the points to the verticesList
-    vertices.push( vec4( x-0.5, y-0.5, z+0.5 ));
-    vertices.push( vec4( x-0.5, y+0.5, z+0.5 ));
-    vertices.push( vec4( x+0.5, y+0.5, z+0.5 ));
-    vertices.push( vec4( x+0.5, y-0.5, z+0.5 ));
-    vertices.push( vec4( x-0.5, y-0.5, z-0.5 ));
-    vertices.push( vec4( x-0.5, y+0.5, z-0.5 ));
-    vertices.push( vec4( x+0.5, y+0.5, z-0.5 ));
-    vertices.push( vec4( x+0.5, y-0.5, z-0.5 ));
-    quad( 1, 0, 3, 2 );
-    quad( 2, 3, 7, 6 );
-    quad( 3, 0, 4, 7 );
-    quad( 6, 5, 1, 2 );
-    quad( 4, 5, 6, 7 );
-    quad( 5, 4, 0, 1 );
+function generateCube(x, y, z) {
+    generateQuad(x,y,z,1,1,1,objColor,false);
+}
+
+function generateQuad(x, y, z, xlen, ylen, zlen, color, isReflective) {
+    // makes a rectangular prism with that point at the center
+    // xlen, ylen, and zlen are specified
+    // adds reflectivity to the array
+    vertices = [];
+    vertices.push( vec4( x-xlen/2, y-ylen/2, z+zlen/2 ));
+    vertices.push( vec4( x-xlen/2, y+ylen/2, z+zlen/2 ));
+    vertices.push( vec4( x+xlen/2, y+ylen/2, z+zlen/2 ));
+    vertices.push( vec4( x+xlen/2, y-ylen/2, z+zlen/2 ));
+    vertices.push( vec4( x-xlen/2, y-ylen/2, z-zlen/2 ));
+    vertices.push( vec4( x-xlen/2, y+ylen/2, z-zlen/2 ));
+    vertices.push( vec4( x+xlen/2, y+ylen/2, z-zlen/2 ));
+    vertices.push( vec4( x+xlen/2, y-ylen/2, z-zlen/2 ));
+    quad( 1, 0, 3, 2, color, isReflective);
+    quad( 2, 3, 7, 6, color, isReflective);
+    quad( 3, 0, 4, 7, color, isReflective);
+    quad( 6, 5, 1, 2, color, isReflective);
+    quad( 4, 5, 6, 7, color, isReflective);
+    quad( 5, 4, 0, 1, color, isReflective);
     vertices=[];
+}
+
+function quad(a, b, c, d, color, isReflective) {
+    var diff1 = subtract(vertices[a],vertices[b]);
+    var diff2 = subtract(vertices[a],vertices[c]);
+    var norm = vec4(normalize(cross(diff2, diff1),false),0.0);
+    cubeNormalsArray.push( [normalize(norm, true), vertices[b]] );
+    minMaxArray.push( [Math.min(vertices[a][0],
+		    	        vertices[b][0],
+			        vertices[c][0],
+			        vertices[d][0]),
+    		       Math.max(vertices[a][0],
+		    	        vertices[b][0],
+			        vertices[c][0],
+			        vertices[d][0]),
+                       Math.min(vertices[a][1],
+		    	        vertices[b][1],
+			        vertices[c][1],
+			        vertices[d][1]),
+                       Math.max(vertices[a][1],
+		    	        vertices[b][1],
+			        vertices[c][1],
+			        vertices[d][1]),
+                       Math.min(vertices[a][2],
+		    	        vertices[b][2],
+			        vertices[c][2],
+			        vertices[d][2]),
+                       Math.max(vertices[a][2],
+		    	        vertices[b][2],
+			        vertices[c][2],
+			        vertices[d][2]) ]);
+    colorsArray.push(color);
+    reflectiveArray.push(isReflective);
 }
 
 function generateSphere(x,y,z,r,color) {
@@ -154,11 +163,11 @@ function findIntersectionTime(rs, rv) {
 	var a = dot(rv,rv);
 	var eyeToCenter = subtract(rs,spheresArray[j][0]);
 	var b = 2 * dot(rv, eyeToCenter);
-	var c = dot(eyeToCenter,eyeToCenter);
+	var c = dot(eyeToCenter,eyeToCenter) - (spheresArray[j][1] * spheresArray[j][1]);
 	var disc = b*b - 4*a*c;
-        var t = (-1*b - disc)/(2*a);
-	var p = add(rs, scale(t,rv));
+        var t = (-1*b - Math.sqrt(disc))/(2*a);
 	if (disc > 0 && t < min_t) {
+	    var p = add(rs, scale(t,rv));
 	    min_t = t;
 	    min_i = -1*(j+1);
 	    min_p = p;
@@ -184,18 +193,30 @@ function getColor(ray) {
     //if ray intersects anything, make it that color
     var ret = findIntersectionTime(eye, ray);
     //ret = [ index of surface of intersection, time of intersect, pt of intersect ]
-    if (ret[1] < 1000 && ret[0] > 0) {
+    if (ret[1] < 1000 && ret[0] >= 0) {
 	//intersects with a cube
+	if (reflectiveArray[ret[0]]) {
+	    //return vec3(0,0,255,255);
+	    var v = normalize(findReflectionVector(cubeNormalsArray[ret[0]][0], ray),true);
+	    //console.log(v);
+	    var r = getColor(v);
+	    if (r[3] == 0) {
+		return vec4(0,0,255,255);
+	    } else {
+		//console.log(r);
+	        return r;
+	    }
+	}
 	return setLightingColor(cubeNormalsArray[ret[0]][0], 
 			        ret[2], 
 				colorsArray[ret[0]]);
     } else if (ret[1] < 1000 && ret[0] < 0) {
-	var realIndex = -1 * ret[0] + 1;
+	var realIndex = -1 * (ret[0] + 1);
         return setLightingColor(sphereNormal(realIndex, ret[2]), 
 			        ret[2], 
 			        spheresArray[realIndex][2]);
     } else {
-	return vec3(0,0,0,255);
+	return vec4(0,0,0,0);
     }
 }
 
@@ -214,7 +235,6 @@ function setLightingColor(norm, pt, baseColor) {
 	var currentSpecular = mult(currentSpecScale, iSpecular);
 	diffusePart = add(diffusePart,currentDiffuse);
 	specularPart = add(specularPart,currentSpecular);
-	//console.log(currentDiffuse);
 
     }
     var c = add(ambientPart,add(diffusePart,specularPart));
@@ -247,8 +267,8 @@ var kShininess =  50.0;
 
 var context, contextData;
 
-var eye = vec4(5.0, 5.0, 22.0, 1);
-var at = vec4(0.0, 0.0, 0.0, 1);
+var eye = vec4(5.0, 5.0, 15.0, 1);
+var at = vec4(2.0, 0.0, 0.0, 1);
 var up = vec4(0.0, 1.0, 0.0, 0);
 var n, u, v;
 var theta = 45 * Math.PI / 180; //angle of view
@@ -274,6 +294,8 @@ window.onload = function init() {
     height = Math.tan(theta/2) * 2 * dist;
     width = height * aspect;
     center = add(eye, scale(dist,n));
+    //console.log(width);
+    //console.log(center);
     tl = add(add(center,scale(width/2,u)), scale(height/2,v));
 
     var currentIndex;
