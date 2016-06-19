@@ -8,12 +8,13 @@ var minMaxArray = []; //each element is [ minx, maxx, miny, maxy, minz, maxz ]
 var colorsArray = [];
 var reflectiveArray = [];
 var vertices = [];
+var objColor;
 
 function quad(a, b, c, d) {
     var diff1 = subtract(vertices[a],vertices[b]);
     var diff2 = subtract(vertices[a],vertices[c]);
     var norm = vec4(normalize(cross(diff2, diff1),false),0.0);
-    normalsArray.push( [norm, vertices[b]] );
+    normalsArray.push( [normalize(norm, true), vertices[b]] );
     minMaxArray.push( [Math.min(vertices[a][0],
 		    	        vertices[b][0],
 			        vertices[c][0],
@@ -38,20 +39,33 @@ function quad(a, b, c, d) {
 		    	        vertices[b][2],
 			        vertices[c][2],
 			        vertices[d][2]) ]);
+    //colorsArray.push(setLightingColor(norm, vertices[b], objColor));
+    colorsArray.push(objColor);
 }
 
 function draw()
 {
-    var color = vec3(255,0,0,255);
-    generateCube(-8, 8,-1, color);
-    generateCube(-7, 8,-1, color);
-    generateCube(-6, 8,-1, color);
-    generateCube(-7, 7,-1, color);
-    generateCube(-7, 6,-1, color);
-    generateCube(-8, 5,-1, color);
-    generateCube(-7, 5,-1, color);
+    objColor = vec4(1,0,0,1);
+    generateCube( 0, 2,-1, objColor); //start of J
+    generateCube( 1, 2,-1, objColor);
+    generateCube( 2, 2,-1, objColor);
+    generateCube( 1, 1,-1, objColor);
+    generateCube( 1, 0,-1, objColor);
+    generateCube( 0,-1,-1, objColor);
+    generateCube( 1,-1,-1, objColor);
 
-    generateCube(-5.5, 4,-1, color);
+    generateCube( 3,-2,-1, objColor); //start of E
+    generateCube( 4,-2,-1, objColor);
+    generateCube( 5,-2,-1, objColor);
+    generateCube( 3,-3,-1, objColor);
+    generateCube( 4,-3.5,-1, objColor);
+    generateCube( 3,-4,-1, objColor);
+    generateCube( 3,-5,-1, objColor);
+    generateCube( 4,-5,-1, objColor);
+    generateCube( 5,-5,-1, objColor);
+
+    /*
+    generateCube(-5.5, 4,-1, color); //start of A
     generateCube(-4.5, 4,-1, color);
     generateCube(-3.5, 4,-1, color);
     generateCube(-5.5, 3,-1, color);
@@ -62,7 +76,7 @@ function draw()
     generateCube(-5.5, 1,-1, color);
     generateCube(-3.5, 1,-1, color);
     
-    generateCube(-2, 1,-1, color);
+    generateCube(-2, 1,-1, color); //start of M
     generateCube(-1, 0.5,-1, color);
     //generateCube( 0, 1,-1, color);
     generateCube( 1, 0.5,-1, color);
@@ -74,17 +88,7 @@ function draw()
     generateCube( 0,-1,-1, color);
     generateCube( 2,-1,-1, color);
 
-    generateCube( 3,-2,-1, color);
-    generateCube( 4,-2,-1, color);
-    generateCube( 5,-2,-1, color);
-    generateCube( 3,-3,-1, color);
-    generateCube( 4,-3.5,-1, color);
-    generateCube( 3,-4,-1, color);
-    generateCube( 3,-5,-1, color);
-    generateCube( 4,-5,-1, color);
-    generateCube( 5,-5,-1, color);
-
-    generateCube( 6,-6,-1, color);
+    generateCube( 6,-6,-1, color); //start of S
     generateCube( 7,-6,-1, color);
     generateCube( 8,-6,-1, color);
     generateCube( 6,-7,-1, color);
@@ -93,6 +97,7 @@ function draw()
     generateCube( 6,-9,-1, color);
     generateCube( 7,-9,-1, color);
     generateCube( 8,-9,-1, color);
+    */
 }
 
 function generateCube(x, y, z, color) {
@@ -113,14 +118,12 @@ function generateCube(x, y, z, color) {
     quad( 4, 5, 6, 7 );
     quad( 5, 4, 0, 1 );
     vertices=[];
-    for(var i=0; i<6; i++) {
-        colorsArray.push(color);
-    }
 }
 
 function findIntersectionTime(rs, rv) {
     var min_i = 1000;
     var min_t = 1000;
+    var min_p = 1000;
 
     for(var i=0; i<normalsArray.length; i++) {
         var subt = subtract(normalsArray[i][1],rs);
@@ -136,6 +139,7 @@ function findIntersectionTime(rs, rv) {
 		//console.log(i);
 	        min_t = t;
 		min_i = i;
+		min_p = p;
 		//alert(rs + " hit " + i);
 	    } else {
 		//alert(rv);
@@ -144,58 +148,78 @@ function findIntersectionTime(rs, rv) {
 	    //alert(rs + " miss " + i);
 	}
     }
-    return [min_i, min_t];
+    return [min_i, min_t, min_p];
 }
 
-function findReflectionVector(i, rv) {
-    var rvnorm = normalize(rv, true);
-    var normnorm = normalize(normalsArray[i][0], true);
-    return add(scale(-2*dot(rvnorm,normnorm), normnorm), rvnorm);
+function findReflectionVector(norm, rv) {
+    //var rvnorm = normalize(rv, true);
+    //var normnorm = normalize(normalsArray[i][0], true);
+    //return add(scale(-2*dot(rvnorm,normnorm), normnorm), rvnorm);
+    return add(scale(-2*dot(rv,norm), norm), rv);
 }
 
 function getColor(ray) {
     //takes ray from eye to point
     //if ray intersects anything, make it that color
     var ret = findIntersectionTime(eye, ray);
+    //ret = [ index of surface of intersection, time of intersect, pt of intersect ]
     if (ret[1] < 1000) {
-	return colorsArray[ret[0]];
+	//return colorsArray[ret[0]];
+	return setLightingColor(normalsArray[ret[0]][0], ret[2], colorsArray[ret[0]]);
     } else {
-	return vec3(0,255,0,255);
+	return vec3(255,255,255,255);
     }
 }
 
-var near = -10;
-var far = 10;
-var radius = 1.0;
-var theta  = 30.0 * Math.PI/180.0;
-var phi    = 30.0 * Math.PI/180.0;
-var dr = 15.0 * Math.PI/180.0;
+function setLightingColor(norm, pt, baseColor) {
+    //the normal, the point of intersection, and the object color are passed in
+    var ambientPart = mult(mult(iAmbient, kAmbient),baseColor);
+    var diffusePart = vec4(0,0,0,1);
+    var specularPart = vec4(0,0,0,1);
+    for (var i=0; i<lightPositions.length; i++){
+	var rayToLight = normalize(subtract(lightPositions[i], pt),true);
+	var currentDiffuseScale = scale(Math.max(0.0,dot(rayToLight,norm)),kDiffuse);
+	var currentDiffuse = mult(currentDiffuseScale, iDiffuse);
+	var reflectionVec = normalize(findReflectionVector(norm, rayToLight),true);
+	var rayToEye = normalize(subtract(pt,eye));
+	var currentSpecScale = scale(Math.pow(dot(reflectionVec,rayToEye),kShininess), kSpecular);
+	var currentSpecular = mult(currentSpecScale, iSpecular);
+	diffusePart = add(diffusePart,currentDiffuse);
+	specularPart = add(specularPart,currentSpecular);
+	//console.log(currentDiffuse);
 
-var left = -10.0;
-var right = 10.0;
-var ytop = 10.0;
-var bottom = -10.0;
+    }
+    var c = add(ambientPart,add(diffusePart,specularPart));
+    for(var j=0; j<3; j++){
+        if(c[j] < 0) {
+	    c[j] = 0;
+	} else if (c[j] > 1) {
+	    c[j] = 1;
+	}
+	c[j] = Math.floor(c[j] * 255);
+    }
+    c[3] = 255;
+    //console.log(c);
+    return c;
+}
 
-var va = vec4(0.0, 0.0, -1.0,1);
-var vb = vec4(0.0, 0.942809, 0.333333, 1);
-var vc = vec4(-0.816497, -0.471405, 0.333333, 1);
-var vd = vec4(0.816497, -0.471405, 0.333333,1);
-    
-var lightPosition = vec4(-3.0, 3.0, 3.0, 0.0 );
-var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0 );
-var lightDiffuse = vec4( 1.0, 1.0, 1.0, 1.0 );
-var lightSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
+//TOP LEFT CUBE IS 0  2 -1
+//BOT RIGHT     IS 5 -5 -1
 
-var materialAmbient = vec4( 1.0, 0.0, 1.0, 1.0 );
-var materialDiffuse = vec4( 1.0, 0.8, 0.0, 1.0 );
-var materialSpecular = vec4( 1.0, 0.8, 0.0, 1.0 );
-var materialShininess = 100.0;
+var lightPositions = [vec4(-3.0,-3.0, 6.0, 1.0),
+    		      vec4( 3.0,-4.0, 2.0, 1.0)	
+    		     ];
+var iAmbient =  vec4( 1.0, 1.0, 1.0, 1.0 );
+var iDiffuse =  vec4( 1.0, 1.0, 1.0, 1.0 );
+var iSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
+
+var kAmbient = vec4( 0.4, 0.4, 0.4, 1.0 );
+var kDiffuse = vec4( 0.8, 0.6, 0.5, 1.0 );
+var kSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
+var kShininess =  50.0;
 
 var context, contextData;
-var ambientColor, diffuseColor, specularColor;
 
-var modelViewMatrix, projectionMatrix;
-var modelViewMatrixLoc, projectionMatrixLoc;
 var eye = vec4(5.0, 5.0, 22.0, 1);
 var at = vec4(0.0, 0.0, 0.0, 1);
 var up = vec4(0.0, 1.0, 0.0, 0);
@@ -246,5 +270,6 @@ window.onload = function init() {
 	}
 	//console.log("finished row " + currentRay);
     }
+    console.log("finished setting colors");
     context.putImageData(contextData, 0, 0);
 }
