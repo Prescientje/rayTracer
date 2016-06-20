@@ -17,13 +17,13 @@ var numObjects = 0;
 function makeShapes()
 {
     objColor = vec4(1,0,0,1);
-    generateCube( 0, 2,-1); //start of J
-    generateCube( 1, 2,-1);
-    generateCube( 2, 2,-1);
-    generateCube( 1, 1,-1);
-    generateCube( 1, 0,-1);
-    generateCube( 0,-1,-1);
-    generateCube( 1,-1,-1);
+    generateCube( 2, 0,-1); //start of J
+    generateCube( 3, 0,-1);
+    generateCube( 4, 0,-1);
+    generateCube( 3,-1,-1);
+    generateCube( 3,-2,-1);
+    generateCube( 2,-3,-1);
+    generateCube( 3,-3,-1);
 
     generateCube( 3,-2, 0); //start of E
     generateCube( 4,-2, 0);
@@ -223,9 +223,6 @@ function sphereNormal(i, pt) {
 
 function getColor(ray, start, depth) {
     //if ray intersects anything, make it that color
-    if (depth > 1) {
-	//console.log(depth + "  at " + start);
-    }
     var ret = findIntersectionTime(start, ray);
     //ret = [ index of surface of intersection, time of intersect, pt of intersect ]
     if (ret[1] < 1000 && ret[0] < cubeNormalsArray.length) {
@@ -235,9 +232,6 @@ function getColor(ray, start, depth) {
 	    //follow that and get the color of that surface (or gray)
 	    var v = normalize(findReflectionVector(cubeNormalsArray[ret[0]][0], ray),true);
 	    var r = getColor(v, ret[2], depth+1);
-	    //if (r[1] === 102 && r[0] === 102) {
-		//console.log(depth);
-	    //}
 	    if (r[3] === 0) {
 		return vec4(127,127,127,255);
 	    } else {
@@ -274,14 +268,21 @@ function setLightingColor(norm, pt, baseColor) {
     var specularPart = vec4(0,0,0,1);
     for (var i=0; i<lightPositions.length; i++) {
 	var rayToLight = normalize(subtract(lightPositions[i], pt),true);
-	var currentDiffuseScale = scale(Math.max(0.0,dot(rayToLight,norm)),kDiffuse);
-	var currentDiffuse = mult(currentDiffuseScale, iDiffuse);
-	diffusePart = add(diffusePart,currentDiffuse);
-	var reflectionVec = normalize(findReflectionVector(norm, rayToLight),true);
-	var rayToEye = normalize(subtract(pt,eye));
-	var currentSpecScale = scale(Math.pow(dot(reflectionVec,rayToEye),kShininess), kSpecular);
-	var currentSpecular = mult(currentSpecScale, iSpecular);
-	specularPart = add(specularPart,currentSpecular);
+	var shadowCheck = findIntersectionTime(pt, rayToLight);
+
+        //check if there is something between the light and the object
+	if (shadowCheck[0] > 900 || shadowCheck[1] < 0.000000001) {
+	    var len = length(rayToLight);
+	    var attenuate = attenuation[0] + len * ( attenuation[1] + len * attenuation[2]);
+	    var currentDiffuseScale = scale(Math.max(0.0,dot(rayToLight,norm)),kDiffuse);
+	    var currentDiffuse = mult(scale(1/attenuate,currentDiffuseScale), iDiffuse);
+	    diffusePart = add(diffusePart,currentDiffuse);
+	    var reflectionVec = normalize(findReflectionVector(norm, rayToLight),true);
+	    var rayToEye = normalize(subtract(pt,eye));
+	    var currentSpecScale = scale(Math.pow(dot(reflectionVec,rayToEye),kShininess), kSpecular);
+	    var currentSpecular = mult(scale(1/attenuate,currentSpecScale), iSpecular);
+	    specularPart = add(specularPart,currentSpecular);
+	}
     }
     var c = add(ambientPart,add(diffusePart,specularPart));
     for(var j=0; j<3; j++){
@@ -299,9 +300,11 @@ function setLightingColor(norm, pt, baseColor) {
 //TOP LEFT CUBE IS 0  2 -1
 //BOT RIGHT     IS 5 -5 -1
 
-var lightPositions = [vec4(-1.0,-3.0, 6.0, 1.0),
-    		      vec4( 3.0,-4.0, 2.0, 1.0),
+var lightPositions = [vec4( -2.0, 6.0, 8.0, 1.0),
+    		      vec4( 8.0,-4.0, 20.0, 1.0),
+    		      //vec4(100.0, 0.0, 3.0, 1.0),
     		     ];
+var attenuation = vec3( 1.0, 0.1, 0.02 );
 var iAmbient =  vec4( 1.0, 1.0, 1.0, 1.0 );
 var iDiffuse =  vec4( 1.0, 1.0, 1.0, 1.0 );
 var iSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
@@ -313,8 +316,8 @@ var kShininess =  50.0;
 
 var context, contextData;
 
-var eye = vec4(12.0, 6.0, 15.0, 1);
-var at = vec4(2.0, 0.0, 0.0, 1);
+var eye = vec4(9.0, 9.0, 15.0, 1);
+var at = vec4(0.0, 0.0, 0.0, 1);
 var up = vec4(0.0, 1.0, 0.0, 0);
 var n, u, v;
 var theta = 45 * Math.PI / 180; //angle of view
@@ -347,22 +350,21 @@ window.onload = function init() {
     var currentIndex;
     var colorAtPoint;
     var currentXpoint, currentYpoint, currentRay;
+    var cpt;
     for(var j=0; j<canvas.height; j++) {
 	currentYpoint = scale(-1*height*(j-0.5)/canvas.height,v);
 	for(var i=0; i<canvas.width; i++) {
 	    currentXpoint = scale(-1*width*(i+0.5)/canvas.width,u);
-	    currentRay = subtract(add(tl,add(currentXpoint,currentYpoint)),eye);
+	    cpt = add(tl, add(currentXpoint, currentYpoint));
+	    currentRay = subtract(cpt,eye);
+
 	    colorAtPoint = getColor(currentRay,eye, 0); 
-	    //if (colorAtPoint[1] === 127) {
-	        //console.log(i);
-	    //}
 	    currentIndex = 4*(canvas.width * j + i); 
 	    contextData.data[currentIndex] =   colorAtPoint[0];
 	    contextData.data[currentIndex+1] = colorAtPoint[1];
 	    contextData.data[currentIndex+2] = colorAtPoint[2];
 	    contextData.data[currentIndex+3] = 255;
 	}
-	//console.log("finish row " + j);
     }
     console.log("finished setting colors");
     context.putImageData(contextData, 0, 0);
