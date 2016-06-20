@@ -8,8 +8,10 @@ var minMaxArray = []; //each element is [ minx, maxx, miny, maxy, minz, maxz ]
 var colorsArray = [];
 var reflectiveArray = [];
 var spheresArray = [];
+var cylindersArray = [];
 var vertices = [];
 var objColor;
+var numObjects = 0;
 
 
 function makeShapes()
@@ -35,42 +37,10 @@ function makeShapes()
 
     generateSphere( 4, 4,-2, 2, vec4(0,1,0,1));
 
-    generateQuad( 5, 0,-5, 50, 50, 0.5, vec4(1,1,1,1), true);
+    generateCylinder( 2, -2, -2, 2, 5, vec4(0,0,0.5,1));
 
-    /*
-    generateCube(-5.5, 4,-1, color); //start of A
-    generateCube(-4.5, 4,-1, color);
-    generateCube(-3.5, 4,-1, color);
-    generateCube(-5.5, 3,-1, color);
-    generateCube(-3.5, 3,-1, color);
-    generateCube(-5.5, 2,-1, color);
-    generateCube(-4.5, 2,-1, color);
-    generateCube(-3.5, 2,-1, color);
-    generateCube(-5.5, 1,-1, color);
-    generateCube(-3.5, 1,-1, color);
-    
-    generateCube(-2, 1,-1, color); //start of M
-    generateCube(-1, 0.5,-1, color);
-    //generateCube( 0, 1,-1, color);
-    generateCube( 1, 0.5,-1, color);
-    generateCube( 2, 1,-1, color);
-    generateCube(-2, 0,-1, color);
-    generateCube( 0, 0,-1, color);
-    generateCube( 2, 0,-1, color);
-    generateCube(-2,-1,-1, color);
-    generateCube( 0,-1,-1, color);
-    generateCube( 2,-1,-1, color);
-
-    generateCube( 6,-6,-1, color); //start of S
-    generateCube( 7,-6,-1, color);
-    generateCube( 8,-6,-1, color);
-    generateCube( 6,-7,-1, color);
-    generateCube( 7,-7.5,-1, color);
-    generateCube( 8,-8,-1, color);
-    generateCube( 6,-9,-1, color);
-    generateCube( 7,-9,-1, color);
-    generateCube( 8,-9,-1, color);
-    */
+    //generateQuad( 5, 0,-5, 50, 50, 0.5, vec4(1,1,1,1), true);
+    generateQuad( 2, 0,-5, 10, 10, 0.5, vec4(1,1,1,1), true);
 }
 
 function generateCube(x, y, z) {
@@ -97,6 +67,7 @@ function generateQuad(x, y, z, xlen, ylen, zlen, color, isReflective) {
     quad( 4, 5, 6, 7, color, isReflective);
     quad( 5, 4, 0, 1, color, isReflective);
     vertices=[];
+    numObjects++;
 }
 
 function quad(a, b, c, d, color, isReflective) {
@@ -136,6 +107,13 @@ function generateSphere(x,y,z,r,color) {
     spheresArray.push([ vec4(x,y,z,1),
 		        r,
 			color ]);
+}
+
+function generateCylinder(x,y,z,r,h,color) {
+    cylindersArray.push([ vec4(x,y,z,1),
+		          r,
+			  h,
+			  color ]);
 }
 
 function findIntersectionTime(rs, rv) {
@@ -188,20 +166,20 @@ function sphereNormal(i, pt) {
     return normalize(subtract(pt,c),true);
 }
 
-function getColor(ray) {
+function getColor(ray, start) {
     //takes ray from eye to point
     //if ray intersects anything, make it that color
-    var ret = findIntersectionTime(eye, ray);
+    var ret = findIntersectionTime(start, ray);
     //ret = [ index of surface of intersection, time of intersect, pt of intersect ]
     if (ret[1] < 1000 && ret[0] >= 0) {
 	//intersects with a cube
 	if (reflectiveArray[ret[0]]) {
 	    //return vec3(0,0,255,255);
 	    var v = normalize(findReflectionVector(cubeNormalsArray[ret[0]][0], ray),true);
-	    //console.log(v);
-	    var r = getColor(v);
+	    console.log(v);
+	    var r = getColor(v, ret[2]);
 	    if (r[3] == 0) {
-		return vec4(0,0,255,255);
+		return vec4(127,127,127,255);
 	    } else {
 		//console.log(r);
 	        return r;
@@ -306,7 +284,7 @@ window.onload = function init() {
 	for(var i=0; i<canvas.width; i++) {
 	    currentXpoint = scale(-1*width*(i+0.5)/canvas.width,u);
 	    currentRay = subtract(add(tl,add(currentXpoint,currentYpoint)),eye);
-	    colorAtPoint = getColor(currentRay); 
+	    colorAtPoint = getColor(currentRay,eye); 
 	    currentIndex = 4*(canvas.width * j + i); 
 	    contextData.data[currentIndex] =   colorAtPoint[0];
 	    contextData.data[currentIndex+1] = colorAtPoint[1];
